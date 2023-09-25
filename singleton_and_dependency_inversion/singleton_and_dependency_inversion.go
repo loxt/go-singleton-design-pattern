@@ -1,13 +1,18 @@
-package singleton_problem
+package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 )
+
+type Database interface {
+	GetPopulation(name string) int
+}
 
 type singletonDatabase struct {
 	capitals map[string]int
@@ -68,8 +73,33 @@ func GetTotalPopulation(cities []string) int {
 	return result
 }
 
+func GetTotalPopulationEx(db Database, cities []string) int {
+	result := 0
+	for _, city := range cities {
+		result += db.GetPopulation(city)
+	}
+	return result
+}
+
+type DummyDatabase struct {
+	dummyData map[string]int
+}
+
+func (db *DummyDatabase) GetPopulation(name string) int {
+	if len(db.dummyData) == 0 {
+		db.dummyData = map[string]int{
+			"alpha": 1,
+			"beta":  2,
+			"gamma": 3}
+	}
+	return db.dummyData[name]
+}
+
 func main() {
-	//cities := []string{"Seoul", "Mexico City"}
-	//tp := GetTotalPopulation(cities)
-	//ok := tp == (17500000 + 17400000)
+	names := []string{"alpha", "gamma"}
+
+	tp := GetTotalPopulationEx(&DummyDatabase{}, names)
+
+	fmt.Println(tp == 4)
+
 }
